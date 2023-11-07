@@ -1,56 +1,51 @@
-import Jimp from "jimp"
-import { useEffect, useState } from "react"
+import Jimp from "jimp";
+import { useEffect, useState } from "react";
 
-const ImageComponent = ({imageUrl, width, height}) => {
+const ImageComponent = ({ imageUrl, width, height }) => {
+  const [image, setImage] = useState(undefined);
+  const [jimpImage, setJimpImage] = useState(undefined);
+  const [transformedImage, setTransformedImage] = useState(undefined);
 
-    const [image, setImage] = useState(undefined)
-    const [jimpImage, setJimpImage] = useState(undefined)
-    const [transformedImage, setTransformedImage] = useState(undefined)
+  // load an image
+  useEffect(() => {
+    const loadImage = async () => {
+      //loading an image from URL
+      const jimpImage = await Jimp.read(imageUrl);
+      setJimpImage(jimpImage);
 
-    // load an image
-    useEffect(() =>{
+      // transform image to base64
+      const image = await jimpImage.getBase64Async(Jimp.MIME_JPEG);
+      setImage(image);
+    };
 
-        const loadImage = async () => {
+    loadImage();
+  }, [imageUrl]);
 
-            //loading an image from URL
-            const jimpImage = await Jimp.read(imageUrl)
-            setJimpImage(jimpImage)
+  // generate the transformed image
+  useEffect(() => {
+    if (jimpImage) {
+      const transfromImage = async () => {
+        const transformedImage = await jimpImage.getBase64Async(Jimp.MIME_JPEG);
+        setTransformedImage(transformedImage);
+      };
+      transfromImage();
+    }
+  }, [jimpImage, height, width]);
 
-            // transform image to base64
-            const image = await jimpImage.getBase64Async(imageUrl)
-            setImage(image)
-        }
-
-        loadImage();
-    },[imageUrl])
-
-    // generate the transformed image
-    useEffect(() => {
-
-        if(jimpImage){
-            const transfromImage = async () => {
-
-                const transformedImage = await jimpImage.getBase64Async(Jimp.MIME_JPEG)
-                setTransformedImage(transformedImage)
-            }
-            transfromImage()
-        }
-
-    }, [jimpImage, height, width])
-
-  return image && jimpImage? (
+  return image && jimpImage ? (
     <>
-        <h1>Original Image</h1>
-        <img className="original-image" src={image} alt="Original image" />
-        <h1>Transformed Image</h1>
-        <img 
-            className="TranaformedImage"
-            src={transformedImage} 
-            alt="Transformed Image" />
+      <h1>Original Image</h1>
+      <img className="original-image" src={image} alt="Original image" />
+      <h1>Transformed Image</h1>
+      <img
+        className="TranaformedImage"
+        src={transformedImage}
+        alt="Transformed Image"
+      />
     </>
   ) : (
     <h1>Loading...</h1>
-  )
-}
+  );
+};
 
-export default ImageComponent
+export default ImageComponent;
